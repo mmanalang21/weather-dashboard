@@ -13,7 +13,7 @@ Build a weather dashboard that will run in the browser and feature dynamically u
 * Bootstrap
 
 ## Website
-https://mmanalang21.github.io/super-disco/
+https://mmanalang21.github.io/weather-dashboard/
 
 ## Contribution
 Made by Matthew Manalang
