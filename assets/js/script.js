@@ -11,7 +11,7 @@ $(function () {
             fetchWeatherData(searchForm);
         }
 
-    // check searh form Array
+ // Check search from Array
         $('#cityInput').val('');
     });
 
@@ -21,13 +21,13 @@ $(function () {
         for (var i = 0; i < weatherForecast.length; i++) {
             var cityLi = $('<li>').addClass('cities col-12 bg-white');
             var cityName = $('<p>').addClass('pl-3').text(weatherForecast[i].name);
-    // insert <p> into <li> and then into ul
             $('#citySearchList').append(cityLi.append(cityName));
         }
     }
 
+// Update local storage when clickicking on search history
     renderHistory();
-    // Add search history / local storage 
+    
     $('#citySearchList').on('click', 'p', function (event) {
         fetchWeatherData(event.target.textContent)
     });
@@ -41,9 +41,8 @@ $(function () {
         var apiUrl = 'https://api.openweathermap.org/data/2.5/weather?q=' + cityName + '&units=imperial&appid=ebeb83ac281ae433806cf721fae06c95';
 
         fetch(apiUrl).then(function (response) {
-    //check for 404 response / unfulfilled promise
             if (response.status === 404) {
-                alert("Please add a valid city!");
+                alert("City Not Recognized! Remember to include spaces!");
             } else {
                 return response.json();
             }
@@ -51,15 +50,15 @@ $(function () {
 
             $('.city-details').css('display', 'block');
 
-    // Add Weather API weather icon
+    // Add Weather API weather icon url
             var weatherIconUrl = 'http://openweathermap.org/img/wn/' + weatherData.weather[0].icon + '.png';
             $('#city-title').text(weatherData.name + ' ' + moment().format('L') + ' ').append($('<img>').attr('src', weatherIconUrl));
             $('#city-temp').text('Temperature: ' + weatherData.main.temp + ' F');
             $('#city-humid').text('Humidity: ' + weatherData.main.humidity + ' %');
             $('#city-wind').text('Wind Speed: ' + weatherData.wind.speed + ' MPH');
-            // console.log(weatherData);
+            
 
-    // create var to get the city logitude and latitude to pass to new fetch request
+    // Pass new city latitude and longitude into new fetch request 
             var currentLat = weatherData.coord.lat;
             var currentLon = weatherData.coord.lon;
 
@@ -70,7 +69,6 @@ $(function () {
         }).then(function (response) {
             return response.json();
         }).then(function (uviData) {
-    // get daily uv and calculate the average 
             var sum = 0;
             for (var i = 0; i < uviData.daily.length; i++) {
                 sum += parseFloat(uviData.daily[i].uvi);
@@ -78,7 +76,6 @@ $(function () {
             var avgUvi = sum / uviData.daily.length;
             avgUvi = avgUvi.toFixed(2);
 
-    // set avgUvi and current uvi
             var cityUvi = $('<span>').text(avgUvi);
             uviBg(avgUvi, cityUvi);
             var cityUviNow = $('<span>').text(uviData.current.uvi);
@@ -103,7 +100,7 @@ $(function () {
                 }
             }
 
-    // create new fetch for uvi data 
+    // New data for each fetch request 
             var currentLat = uviData.lat;
             var currentLon = uviData.lon;
 
@@ -117,30 +114,27 @@ $(function () {
 
             $('.forecast').css('display', 'block');
 
-    // clear data before setting new data
+    // clear out old data for new request
             $('.bg-primary').empty();
 
             var utcTime = moment().subtract(moment().format('ZZ')/100, 'hours');
             var cityTime = utcTime.add(forecast.city.timezone, 'seconds');
 
-    // the next 5 days
+    
             var day1 = moment(cityTime).add(1, 'day').format('L');
             var day2 = moment(cityTime).add(2, 'days').format('L');
             var day3 = moment(cityTime).add(3, 'days').format('L');
             var day4 = moment(cityTime).add(4, 'days').format('L');
             var day5 = moment(cityTime).add(5, 'days').format('L');
 
-    // traversal the list and get each day of forecast
+    // For each forecast day traversal the list
             for (var i = 0; i < forecast.list.length; i++) {
                 var forecastList = forecast.list[i];
                 var indexTime = Number(forecast.list[forecast.list.length-1].dt_txt.split(' ')[1].split(':')[0]);
 
                 if (forecastList.dt_txt.indexOf('12:00:00') !== -1) {
-    // split forecastTime with space and remain the first part
                     var forecastTime = forecastList.dt_txt.split(' ')[0];
-    // transform forecastTime to match with moment time
                     var transTime = moment(forecastTime).format('L');
-    // using Weather API weather icon url
                     var weatherIconUrl = 'http://openweathermap.org/img/wn/' + forecastList.weather[0].icon + '.png';
                     
                     if (transTime === day1) {
@@ -156,6 +150,7 @@ $(function () {
                     }
                 }
             }
+
 
             var filterForecast = weatherForecast.filter(function (el) {
                 if (el.name === cityName) {
